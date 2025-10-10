@@ -4,40 +4,153 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <title>E-Mail jetzt schreiben</title>
+  <title>Bewerbung Elternbeirat schreiben</title>
   <style>
-    :root { --maxw: 720px; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#f6f7f9; color:#111; }
-    .wrap { max-width: var(--maxw); margin: 6vh auto; padding: 24px; }
-    .card { background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); padding: clamp(20px, 4vw, 40px); }
-    h1 { font-size: clamp(20px, 4vw, 28px); margin: 0 0 8px; }
-    p { line-height: 1.5; margin: 8px 0 16px; }
-    .btn { display:inline-block; padding: 14px 18px; border-radius: 12px; text-decoration:none; font-weight:600; border:1px solid #ddd; }
-    .btn-primary { background:#111; color:#fff; }
-    .muted { color:#555; font-size: 14px; }
-    .box { background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow:auto; }
-    .spacer { height: 14px; }
+    :root {
+      --bg: #f6f7f9;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --shadow: 0 8px 30px rgba(0,0,0,.06);
+      --radius: 14px;
+      --maxw: 720px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
+    .wrap { max-width: var(--maxw); margin: 6vh auto; padding: 0 20px; }
+    .card { background: var(--card); box-shadow: var(--shadow); border-radius: var(--radius); padding: clamp(20px, 4vw, 36px); }
+
+    h1 { font-size: clamp(20px, 3.4vw, 28px); margin: 0 0 6px; letter-spacing: 0.2px; }
+    .lead { color: var(--muted); margin: 6px 0 18px; }
+
+    .btn {
+      display:inline-block; text-decoration:none; cursor:pointer; user-select:none;
+      border:1px solid var(--border); border-radius: 10px; font-weight: 600;
+      padding: 12px 14px; transition: transform .02s ease, background .15s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background:#111827; color:#fff; border-color:#111827; }
+    .btn-primary:hover { background:#0b1220; }
+
+    .grid { display: grid; gap: 14px; margin-top: 18px; }
+    .label { color: var(--muted); font-size: 14px; }
+
+    .box {
+      position: relative; background:#fafafa; border:1px solid var(--border);
+      border-radius: 12px; padding: 12px 44px 12px 12px;
+    }
+    .box-content {
+      font-family: var(--mono); font-size: 14px; line-height: 1.5;
+      white-space: pre-wrap; /* zeigt Zeilenumbrüche sauber an */
+      margin: 0;
+    }
+
+    .copy-btn {
+      position:absolute; top:6px; right:6px;
+      display:inline-flex; align-items:center; justify-content:center;
+      width:28px; height:28px; border:1px solid var(--border); border-radius: 8px;
+      background:#f3f4f6; cursor:pointer;
+      transition: background .15s ease, transform .02s ease;
+    }
+    .copy-btn:hover { background:#e5e7eb; }
+    .copy-btn:active { transform: translateY(1px); }
+    .copy-icon, .check-icon { width:16px; height:16px; display:block; }
+    .check-icon { display:none; } /* wird nach Copy kurz gezeigt */
+
+    /* Fallback-Show: UI erst einblenden, wenn Auto-Open scheitert */
+    .stealth { opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .show { opacity: 1; pointer-events: auto; }
+
+    /* Scrollbar für lange Texte, ohne riesige Boxen */
+    .box.scrollable { max-height: 240px; overflow: auto; }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div id="app" class="wrap stealth">
     <div class="card">
-      <h1>E-Mail jetzt schreiben</h1>
-      <p class="muted">Falls die automatische Weiterleitung nicht startet, klicke auf den Button.</p>
+      <h1>Bewerbung Elternbeirat schreiben</h1>
+      <p class="lead">Falls die automatische Weiterleitung nicht startet, klicke auf den Button.</p>
+      <a id="cta" class="btn btn-primary" href="#">Bewerbung per E-Mail öffnen</a>
 
-      <p><a id="cta" class="btn btn-primary" href="#">E-Mail in Mail-App öffnen</a></p>
+      <div class="grid">
+        <!-- Adresse -->
+        <div>
+          <div class="label">E-Mail-Adresse</div>
+          <div class="box" id="addr">
+            <button class="copy-btn" aria-label="Adresse kopieren" title="Kopieren" onclick="copyFrom('addr')">
+              <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+              </svg>
+            </button>
+            <div class="box-content copy-source">buergermeisterin@stadt-kw.de</div>
+          </div>
+        </div>
 
-      <div class="spacer"></div>
-      <p class="muted">Oder Adresse kopieren:</p>
-      <div class="box">buergermeisterin@stadt-kw.de</div>
+        <!-- Betreff -->
+        <div>
+          <div class="label">Betreff</div>
+          <div class="box" id="subj">
+            <button class="copy-btn" aria-label="Betreff kopieren" title="Kopieren" onclick="copyFrom('subj')">
+              <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+              </svg>
+            </button>
+            <div class="box-content copy-source">Bewerbung als Mitglied des Elternbeirats der Stadt Königs Wusterhausen</div>
+          </div>
+        </div>
 
-      <div class="spacer"></div>
-      <p class="muted">Hinweis: In WhatsApp/Android blockiert der Direktaufruf manchmal – der Button funktioniert dann i. d. R. zuverlässig.</p>
+        <!-- E-Mail-Text -->
+        <div>
+          <div class="label">E-Mail-Text (Vorlage)</div>
+          <div class="box scrollable" id="body">
+            <button class="copy-btn" aria-label="Text kopieren" title="Kopieren" onclick="copyFrom('body')">
+              <svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5"></path>
+              </svg>
+            </button>
+            <div class="box-content copy-source">Sehr geehrte Frau Bürgermeisterin,
+
+gemäß § 12 Abs. 3 der Hauptsatzung der Stadt Königs Wusterhausen bewerbe ich mich hiermit als Mitglied des Elternbeirats.
+
+Ich möchte mich aktiv an der Vertretung der Interessen der Kinder und Familien in unserer Stadt beteiligen und einen Beitrag zu einer konstruktiven Zusammenarbeit zwischen Eltern, Einrichtungen und Verwaltung leisten.
+
+Mit freundlichen Grüßen
+[Name]
+[Kind] | [Einrichtung]
+[Telefonnummer] | [Anschrift]</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="lead" style="margin-top:18px">Hinweis: Manche Android-WebViews (z. B. in WhatsApp) blockieren direkte Mail-Aufrufe. Dann funktioniert der Button und die Kopier-Funktionen zuverlässig.</p>
     </div>
   </div>
 
+  <!-- versteckte Elemente für Auto-Open -->
+  <a id="hiddenMailto" style="display:none"></a>
+  <iframe id="hiddenFrame" style="display:none"></iframe>
+
   <script>
-    // === E-Mail-Daten ===
+    // Daten
     const to = "buergermeisterin@stadt-kw.de";
     const subject = "Bewerbung als Mitglied des Elternbeirats der Stadt Königs Wusterhausen";
     const body = [
@@ -54,24 +167,60 @@
     ].join("\n");
 
     function buildMailto() {
-      const s = encodeURIComponent(subject);
-      const b = encodeURIComponent(body);
-      return `mailto:${to}?subject=${s}&body=${b}`;
+      return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }
 
-    // Button-HREF setzen
+    // Primärer CTA
     const cta = document.getElementById("cta");
     cta.href = buildMailto();
 
-    // Auto-Redirect nach kurzer Verzögerung
-    setTimeout(() => {
-      try { window.location.href = buildMailto(); } catch (e) {}
-    }, 600);
+    // Auto-Open: erst mailto versuchen; UI nur zeigen, wenn blockiert
+    (function autoOpen() {
+      const url = buildMailto();
+      if (history.replaceState) history.replaceState(null, "", location.href.split("#")[0]);
+
+      try { window.location.href = url; } catch(e) {}
+
+      setTimeout(() => { // 2. Versuch via <a>
+        try { const a = document.getElementById("hiddenMailto"); a.href = url; a.click(); } catch(e) {}
+      }, 120);
+
+      setTimeout(() => { // 3. Versuch via <iframe>
+        try { document.getElementById("hiddenFrame").src = url; } catch(e) {}
+      }, 260);
+
+      // UI einblenden, falls nicht geklappt
+      setTimeout(() => {
+        document.getElementById("app").classList.remove("stealth");
+        document.getElementById("app").classList.add("show");
+      }, 600);
+    })();
+
+    // Copy-Logik: holt nur den Text aus .copy-source; Button zeigt kurz Haken
+    function copyFrom(boxId) {
+      const box = document.getElementById(boxId);
+      const src = box.querySelector('.copy-source');
+      const btn = box.querySelector('.copy-btn');
+      const copyIcon = btn.querySelector('.copy-icon');
+      const checkIcon = btn.querySelector('.check-icon');
+      const text = src.innerText.trim();
+
+      navigator.clipboard.writeText(text).then(() => {
+        copyIcon.style.display = 'none';
+        checkIcon.style.display = 'block';
+        setTimeout(() => {
+          checkIcon.style.display = 'none';
+          copyIcon.style.display = 'block';
+        }, 1200);
+      });
+    }
   </script>
 
   <noscript>
-    <div style="max-width:720px;margin:0 auto;padding:0 24px 24px;">
-      <p><a class="btn" href="mailto:buergermeisterin@stadt-kw.de">E-Mail schreiben (Fallback)</a></p>
+    <div style="max-width:720px;margin:24px auto;padding:0 20px;">
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px">
+        <p>Bitte JavaScript aktivieren. Alternativ können Sie <a href="mailto:buergermeisterin@stadt-kw.de">hier klicken</a>, um eine E-Mail zu schreiben.</p>
+      </div>
     </div>
   </noscript>
 </body>
