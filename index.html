@@ -4,32 +4,60 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <title>E-Mail jetzt schreiben</title>
+  <title>Bewerbung Elternbeirat schreiben</title>
   <style>
     :root { --maxw: 720px; }
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#f6f7f9; color:#111; }
     .wrap { max-width: var(--maxw); margin: 6vh auto; padding: 24px; }
     .card { background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); padding: clamp(20px, 4vw, 40px); }
     h1 { font-size: clamp(20px, 4vw, 28px); margin: 0 0 8px; }
-    p { line-height: 1.5; margin: 8px 0 16px; }
-    .btn { display:inline-block; padding: 14px 18px; border-radius: 12px; text-decoration:none; font-weight:600; border:1px solid #ddd; }
+    p { line-height: 1.5; margin: 8px 0 8px; }
+    .btn { display:inline-block; padding: 10px 14px; border-radius: 8px; text-decoration:none; font-weight:600; border:1px solid #ddd; cursor:pointer; }
     .btn-primary { background:#111; color:#fff; }
-    .muted { color:#555; font-size: 14px; }
-    .box { background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow:auto; }
+    .btn-copy { position:absolute; top:6px; right:6px; background:#f0f0f0; font-size:12px; padding:4px 8px; border-radius:6px; }
+    .btn-copy:active { background:#ddd; }
+    .muted { color:#555; font-size: 14px; margin-bottom: 4px; }
+    .box { position:relative; background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre-wrap; }
     .spacer { height: 14px; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>E-Mail jetzt schreiben</h1>
+      <h1>Bewerbung Elternbeirat schreiben</h1>
       <p class="muted">Falls die automatische Weiterleitung nicht startet, klicke auf den Button.</p>
 
       <p><a id="cta" class="btn btn-primary" href="#">E-Mail in Mail-App öffnen</a></p>
 
       <div class="spacer"></div>
-      <p class="muted">Oder Adresse kopieren:</p>
-      <div class="box">buergermeisterin@stadt-kw.de</div>
+      <p class="muted">E-Mail-Adresse:</p>
+      <div class="box" id="addr">
+        <button class="btn-copy" onclick="copyText('addr', this)">Kopieren</button>
+        buergermeisterin@stadt-kw.de
+      </div>
+
+      <div class="spacer"></div>
+      <p class="muted">Betreff:</p>
+      <div class="box" id="subj">
+        <button class="btn-copy" onclick="copyText('subj', this)">Kopieren</button>
+        Bewerbung als Mitglied des Elternbeirats der Stadt Königs Wusterhausen
+      </div>
+
+      <div class="spacer"></div>
+      <p class="muted">Vorlagentext:</p>
+      <div class="box" id="body">
+        <button class="btn-copy" onclick="copyText('body', this)">Kopieren</button>
+Sehr geehrte Frau Bürgermeisterin,
+
+gemäß § 12 Abs. 3 der Hauptsatzung der Stadt Königs Wusterhausen bewerbe ich mich hiermit als Mitglied des Elternbeirats.
+
+Ich möchte mich aktiv an der Vertretung der Interessen der Kinder und Familien in unserer Stadt beteiligen und einen Beitrag zu einer konstruktiven Zusammenarbeit zwischen Eltern, Einrichtungen und Verwaltung leisten.
+
+Mit freundlichen Grüßen
+[Name]
+[Kind] | [Einrichtung]
+[Telefonnummer] | [Anschrift]
+      </div>
 
       <div class="spacer"></div>
       <p class="muted">Hinweis: In WhatsApp/Android blockiert der Direktaufruf manchmal – der Button funktioniert dann i. d. R. zuverlässig.</p>
@@ -37,7 +65,7 @@
   </div>
 
   <script>
-    // === Deine E-Mail-Daten ===
+    // === E-Mail-Daten ===
     const to = "buergermeisterin@stadt-kw.de";
     const subject = "Bewerbung als Mitglied des Elternbeirats der Stadt Königs Wusterhausen";
     const body = [
@@ -48,9 +76,9 @@
       "Ich möchte mich aktiv an der Vertretung der Interessen der Kinder und Familien in unserer Stadt beteiligen und einen Beitrag zu einer konstruktiven Zusammenarbeit zwischen Eltern, Einrichtungen und Verwaltung leisten.",
       "",
       "Mit freundlichen Grüßen",
-      "[Vorname Nachname]",
-      "[ggf. Name des Kindes / der Einrichtung]",
-      "[Adresse oder Kontaktmöglichkeit]"
+      "[Name]",
+      "[Kind] | [Einrichtung]",
+      "[Telefonnummer] | [Anschrift]"
     ].join("\n");
 
     function buildMailto() {
@@ -63,10 +91,22 @@
     const cta = document.getElementById("cta");
     cta.href = buildMailto();
 
-    // Sanfter Auto-Start nach kurzer Verzögerung
+    // Auto-Redirect nach kurzer Verzögerung
     setTimeout(() => {
       try { window.location.href = buildMailto(); } catch (e) {}
     }, 600);
+
+    // Kopierfunktion
+    function copyText(id, btn) {
+      const el = document.getElementById(id);
+      // Alles außer dem Button selbst
+      const text = el.innerText.replace("Kopieren", "").trim();
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.innerText;
+        btn.innerText = "✔️";
+        setTimeout(() => { btn.innerText = old; }, 1200);
+      });
+    }
   </script>
 
   <noscript>
