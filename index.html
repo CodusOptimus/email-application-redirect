@@ -19,15 +19,19 @@
     .muted { color:#555; font-size: 14px; margin-bottom: 4px; }
     .box { position:relative; background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space:pre-wrap; }
     .spacer { height: 14px; }
+
+    /* Auto-open UX: zuerst unsichtbar, nur Fallback zeigen, wenn nötig */
+    .stealth { opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .show    { opacity: 1; pointer-events: auto; }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div id="app" class="wrap stealth">
     <div class="card">
       <h1>Bewerbung Elternbeirat schreiben</h1>
       <p class="muted">Falls die automatische Weiterleitung nicht startet, klicke auf den Button.</p>
 
-      <p><a id="cta" class="btn btn-primary" href="#">E-Mail in Mail-App öffnen</a></p>
+      <p><a id="cta" class="btn btn-primary" href="#">Bewerbung per E-Mail öffnen</a></p>
 
       <div class="spacer"></div>
       <p class="muted">E-Mail-Adresse:</p>
@@ -60,9 +64,13 @@ Mit freundlichen Grüßen
       </div>
 
       <div class="spacer"></div>
-      <p class="muted">Hinweis: In WhatsApp/Android blockiert der Direktaufruf manchmal – der Button funktioniert dann i. d. R. zuverlässig.</p>
+      <p class="muted">Hinweis: Manche Android-WebViews (z. B. in WhatsApp) blockieren direkte Mail-Aufrufe. Dann funktioniert der Button und die Kopier-Funktionen zuverlässig.</p>
     </div>
   </div>
+
+  <!-- versteckter Anker & Iframe für unterschiedliche Browser-Strategien -->
+  <a id="hiddenMailto" style="display:none"></a>
+  <iframe id="hiddenFrame" style="display:none"></iframe>
 
   <script>
     // === E-Mail-Daten ===
@@ -87,24 +95,62 @@ Mit freundlichen Grüßen
       return `mailto:${to}?subject=${s}&body=${b}`;
     }
 
-    // Button-HREF setzen
+    // Primärer Button
     const cta = document.getElementById("cta");
     cta.href = buildMailto();
 
-    // Auto-Redirect nach kurzer Verzögerung
-    setTimeout(() => {
-      try { window.location.href = buildMailto(); } catch (e) {}
-    }, 600);
+    // --- Auto-Open-Strategie ---
+    // 1) Direktversuch
+    // 2) Programmatic Click auf <a>
+    // 3) Fallback via hidden iframe (manche iOS-Versionen)
+    // 4) Wenn nichts „greift“, zeige UI nach kurzer Zeit
+    (function autoOpen() {
+      const url = buildMailto();
 
-    // Kopierfunktion
+      // Zurück-Navigation hübsch halten (kein Endlos-Zurück nach Deep-Link)
+      if (history.replaceState) {
+        history.replaceState(null, "", location.href.split("#")[0]);
+      }
+
+      let opened = false;
+      try { window.location.href = url; opened = true; } catch(e) {}
+
+      setTimeout(() => {
+        if (!opened) {
+          try {
+            const a = document.getElementById("hiddenMailto");
+            a.href = url;
+            a.click();
+          } catch(e) {}
+        }
+      }, 150);
+
+      setTimeout(() => {
+        if (!opened) {
+          try {
+            const f = document.getElementById("hiddenFrame");
+            f.src = url;
+          } catch(e) {}
+        }
+      }, 300);
+
+      // Nach kurzer Wartezeit UI einblenden, falls nichts passierte
+      setTimeout(() => {
+        document.getElementById("app").classList.remove("stealth");
+        document.getElementById("app").classList.add("show");
+      }, 650);
+    })();
+
+    // Kopierfunktion (Box-Inhalt ohne Button)
     function copyText(id, btn) {
       const el = document.getElementById(id);
-      // Alles außer dem Button selbst
-      const text = el.innerText.replace("Kopieren", "").trim();
+      const text = Array.from(el.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent).join("").trim();
       navigator.clipboard.writeText(text).then(() => {
         const old = btn.innerText;
         btn.innerText = "✔️";
-        setTimeout(() => { btn.innerText = old; }, 1200);
+        setTimeout(() => { btn.innerText = "Kopieren"; }, 1200);
       });
     }
   </script>
