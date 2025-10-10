@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>E-Mail jetzt schreiben</title>
+  <style>
+    :root { --maxw: 720px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#f6f7f9; color:#111; }
+    .wrap { max-width: var(--maxw); margin: 6vh auto; padding: 24px; }
+    .card { background:#fff; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.06); padding: clamp(20px, 4vw, 40px); }
+    h1 { font-size: clamp(20px, 4vw, 28px); margin: 0 0 8px; }
+    p { line-height: 1.5; margin: 8px 0 16px; }
+    .btn { display:inline-block; padding: 14px 18px; border-radius: 12px; text-decoration:none; font-weight:600; border:1px solid #ddd; }
+    .btn-primary { background:#111; color:#fff; }
+    .muted { color:#555; font-size: 14px; }
+    .box { background:#fafafa; border:1px solid #eee; border-radius:12px; padding:12px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow:auto; }
+    .spacer { height: 14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>E-Mail jetzt schreiben</h1>
+      <p class="muted">Falls die automatische Weiterleitung nicht startet, klicke auf den Button.</p>
+
+      <p><a id="cta" class="btn btn-primary" href="#">E-Mail in Mail-App öffnen</a></p>
+
+      <div class="spacer"></div>
+      <p class="muted">Oder Adresse kopieren:</p>
+      <div class="box">buergermeisterin@stadt-kw.de</div>
+
+      <div class="spacer"></div>
+      <p class="muted">Hinweis: In WhatsApp/Android blockiert der Direktaufruf manchmal – der Button funktioniert dann i. d. R. zuverlässig.</p>
+    </div>
+  </div>
+
+  <script>
+    // === Deine E-Mail-Daten ===
+    const to = "buergermeisterin@stadt-kw.de";
+    const subject = "Bewerbung als Mitglied des Elternbeirats der Stadt Königs Wusterhausen";
+    const body = [
+      "Sehr geehrte Frau Bürgermeisterin,",
+      "",
+      "gemäß § 12 Abs. 3 der Hauptsatzung der Stadt Königs Wusterhausen bewerbe ich mich hiermit als Mitglied des Elternbeirats.",
+      "",
+      "Ich möchte mich aktiv an der Vertretung der Interessen der Kinder und Familien in unserer Stadt beteiligen und einen Beitrag zu einer konstruktiven Zusammenarbeit zwischen Eltern, Einrichtungen und Verwaltung leisten.",
+      "",
+      "Mit freundlichen Grüßen",
+      "[Vorname Nachname]",
+      "[ggf. Name des Kindes / der Einrichtung]",
+      "[Adresse oder Kontaktmöglichkeit]"
+    ].join("\n");
+
+    function buildMailto() {
+      const s = encodeURIComponent(subject);
+      const b = encodeURIComponent(body);
+      return `mailto:${to}?subject=${s}&body=${b}`;
+    }
+
+    // Button-HREF setzen
+    const cta = document.getElementById("cta");
+    cta.href = buildMailto();
+
+    // Sanfter Auto-Start nach kurzer Verzögerung
+    setTimeout(() => {
+      try { window.location.href = buildMailto(); } catch (e) {}
+    }, 600);
+  </script>
+
+  <noscript>
+    <div style="max-width:720px;margin:0 auto;padding:0 24px 24px;">
+      <p><a class="btn" href="mailto:buergermeisterin@stadt-kw.de">E-Mail schreiben (Fallback)</a></p>
+    </div>
+  </noscript>
+</body>
+</html>
